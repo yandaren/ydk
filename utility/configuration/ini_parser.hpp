@@ -75,11 +75,11 @@ public:
         return ret_v;
     }
 
-    int64_t get_int64(const char* value, int64_t default = 0)
+    int64_t get_int64(const char* value, int64_t dfault = 0)
     {
         std::lock_guard<Mutex> locker(mtx_);
 
-        int64_t ret_v = default;
+        int64_t ret_v = dfault;
 
         std::string* v = get(value);
         if (v){
@@ -90,11 +90,11 @@ public:
         return ret_v;
     }
 
-    float  get_float(const char* value, float default = 0)
+    float  get_float(const char* value, float dfault = 0)
     {
         std::lock_guard<Mutex> locker(mtx_);
 
-        float ret_v = default;
+        float ret_v = dfault;
 
         std::string* v = get(value);
         if (v){
@@ -105,11 +105,11 @@ public:
         return ret_v;
     }
 
-    std::string get_string(const char* value, std::string default = "")
+    std::string get_string(const char* value, std::string dfault = "")
     {
         std::lock_guard<Mutex> locker(mtx_);
 
-        std::string ret_v = default;
+        std::string ret_v = dfault;
 
         std::string* v = get(value);
         if (v){
