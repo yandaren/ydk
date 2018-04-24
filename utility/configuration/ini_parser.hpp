@@ -171,25 +171,30 @@ protected:
             else{
                 for (int32_t i = 0; i < len; ++i){
                     if (buf[i] == '='){
-                        std::string item_name_tmp 
-                            = std::move(std::string(buf, i));
+                        // trim ' '
+                        // start skip ' '
+                        int32_t ks = 0;
+                        while (ks < i && buf[ks] == ' ') ks++;
+                        // end skip ' '
+                        int32_t ke = i - 1;
+                        if (ke >= 0 && buf[ke] == ' ') ke--;
+                        if (ks > ke) break;
+                        std::string item_name = std::move(std::string(buf + ks, ke - ks + 1));
 
-                        int32_t k = (int32_t)(item_name_tmp.size() - 1);
-                        while (k >= 0 && item_name_tmp[k] == ' ') k--;
-                        item_name = item_name_tmp.substr(0, k + 1);
+                        // start skip ' '
+                        ks = i + 1;
+                        while (ks < len && buf[ks] == ' ') ks++;
 
-                        std::string value_tmp = i < len - 1 ?
-                            std::move(std::string(buf + i + 1, len - i - 1)) :
-                            std::move(std::string(""));
-
-                        // skip /r/n
-                        k = (int32_t)(value_tmp.size() - 1);
-                        while (k >= 0 && (value_tmp[k] == '\r' || value_tmp[k] == '\n')) k--;
-                        item_value = value_tmp.substr(0, k + 1);
+                        // end skip /r/n
+                        ke = len - 1;
+                        while (ke >= 0 && (buf[ke] == '\r' || buf[ke] == '\n' || buf[ke] == ' ')) ke--;
+                        if (ks > ke) break;
+                        std::string item_value = std::move(std::string(buf + ks, ke - ks + 1));
 
                         // save the result
                         std::string key = app_name + std::string(".") + item_name;
                         key_value_map_[key] = item_value;
+
                         break;
                     }
                 }
