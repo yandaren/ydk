@@ -11,6 +11,7 @@
 #define __ydk_utility_configuration_ini_parser_hpp__
 
 #include <unordered_map>
+#include <string.h>
 #include <string>
 #include <cstdint>
 #include <cstdio>
