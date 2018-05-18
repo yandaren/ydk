@@ -205,7 +205,7 @@ inline T abs(const T x){
 /** returns 1, 0 or -1 depending on relation of T to 0 */
 template<typename T>
 inline T sign(const T x){
-	return (f > 0) ? 1 : ((f < 0) ? -1 : 0);
+	return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
 
 template<typename T>
