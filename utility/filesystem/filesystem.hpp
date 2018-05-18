@@ -23,6 +23,7 @@
 #endif
 
 #include <stdint.h>
+#include <string.h>
 #include <string>
 #define MAX_PATH_LEN 256
 
