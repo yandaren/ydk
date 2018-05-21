@@ -15,9 +15,9 @@
 #define __ydk_utility_filesystem_directory_iterator_hpp__
 
 #ifdef _WIN32
-#include "directory_iterator_win.hpp"
+#include "impl/directory_iterator_win.hpp"
 #elif defined(__linux__)
-#include "directory_iterator_linux.hpp"
+#include "impl/directory_iterator_linux.hpp"
 #endif
 
 #endif
