@@ -13,4 +13,8 @@
 #define ASIO_STANDALONE
 #endif
 
+#ifndef ASIO_HAS_STD_CHRONO
+#define ASIO_HAS_STD_CHRONO 1
+#endif
+
 #endif

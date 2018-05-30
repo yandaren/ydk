@@ -12,7 +12,7 @@
 #define __ydk_utility_asio_base_timer_hpp__
 
 #include "asio_standalone.hpp"
-#include "basic_deadline_timer.hpp"
+#include <asio/high_resolution_timer.hpp>
 #include <asio/io_service.hpp>
 #include <chrono>
 #include <cstdint>
@@ -24,9 +24,7 @@ namespace utility
 namespace asio_base
 {
 
-typedef basic_deadline_timer<std::chrono::high_resolution_clock> deadline_timer;
-
-class timer : public deadline_timer,
+class timer : public asio::high_resolution_timer,
               public std::enable_shared_from_this<timer>
 {
 public:
@@ -75,7 +73,7 @@ public:
 
 protected:
     timer(asio::io_service& io_service)
-        : asio_base::deadline_timer(io_service)
+        : asio::high_resolution_timer(io_service)
         , invoker_(0)
     {
     }
