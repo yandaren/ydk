@@ -209,11 +209,12 @@ namespace utility
 
             timeout_task::ptr task;
             auto iter = time_out_task_map_.find(task_id);
-            if (iter != time_out_task_map_.end()) {
-                task = iter->second;
-                time_out_task_map_.erase(iter);
+            if (iter == time_out_task_map_.end()) {
+                return task;
             }
 
+            task = iter->second;
+            time_out_task_map_.erase(iter);
             auto t_pair = expire_map_.equal_range(task->get_expire_time());
             for (auto t_iter = t_pair.first; t_iter != t_pair.second; ++t_iter) {
                 if (t_iter->second == task_id) {
