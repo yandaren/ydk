@@ -80,7 +80,16 @@ namespace utility
             return task_type;
         }
 
+        void        set_desc(const std::string& info) {
+            desc = info;
+        }
+
+        const std::string& get_desc() const {
+            return desc;
+        }
+
         virtual void do_affect() = 0;
+        virtual void calc_desc() {};
 
     protected:
         uint64_t start_time;        // 开始时间
@@ -88,6 +97,7 @@ namespace utility
         uint64_t task_id;           // task id
         int32_t  time_out;          // 多久过期(ms)
         int32_t  task_type;         // task 类型
+        std::string desc;           // 描述信息
     };
 
     class timeout_task_manager
@@ -194,12 +204,13 @@ namespace utility
             task->set_task_id(++next_task_id_);
             task->set_task_type(task_type);
             task->set_time_out(time_out_in_milli);
+            task->calc_desc();
 
             expire_map_.insert(std::make_pair(task->get_expire_time(), task->get_task_id()));
             time_out_task_map_[task->get_task_id()] = task;
 
-            log_msg(log_lvl_info, "timeout_task_mgr[%s] add_task{id: %llu, type: %d, time_out: %dms, expired_time: %llu}, cur expire_map_size[%zd], timeout_task_map_size[%zd].",
-                name_.c_str(), task->get_task_id(), task->get_task_type(), task->get_time_out(), task->get_expire_time(), expire_map_.size(), time_out_task_map_.size());
+            log_msg(log_lvl_info, "timeout_task_mgr[%s] add_task{id: %llu, type: %d, time_out: %dms, expired_time: %llu, desc:{%s}}, cur expire_map_size[%zd], timeout_task_map_size[%zd].",
+                name_.c_str(), task->get_task_id(), task->get_task_type(), task->get_time_out(), task->get_expire_time(), task->get_desc().c_str(), expire_map_.size(), time_out_task_map_.size());
 
             return task->get_task_id();
         }
@@ -223,8 +234,8 @@ namespace utility
                 }
             }
 
-            log_msg(log_lvl_info, "timeout_task_mgr[%s] remove_task{id: %llu, type: %d, time_out: %dms, expired_time: %llu}, remain expire_map_size[%zd], timeout_task_map_size[%zd].",
-                name_.c_str(), task->get_task_id(), task->get_task_type(), task->get_time_out(), task->get_expire_time(), expire_map_.size(), time_out_task_map_.size());
+            log_msg(log_lvl_info, "timeout_task_mgr[%s] remove_task{id: %llu, type: %d, time_out: %dms, expired_time: %llu, desc:{%s}}, remain expire_map_size[%zd], timeout_task_map_size[%zd].",
+                name_.c_str(), task->get_task_id(), task->get_task_type(), task->get_time_out(), task->get_expire_time(), task->get_desc().c_str(), expire_map_.size(), time_out_task_map_.size());
 
             return task;
         }
@@ -281,8 +292,8 @@ namespace utility
                     continue;
                 }
 
-                log_msg(log_lvl_info, "timeout_task_mgr[%s] process time_out_task{id: %llu, type: %d, time_out: %dms, expired_time: %llu}.",
-                    name_.c_str(), task->get_task_id(), task->get_task_type(), task->get_time_out(), task->get_expire_time());
+                log_msg(log_lvl_info, "timeout_task_mgr[%s] process time_out_task{id: %llu, type: %d, time_out: %dms, expired_time: %llu, desc:{%s}}.",
+                    name_.c_str(), task->get_task_id(), task->get_task_type(), task->get_time_out(), task->get_expire_time(), task->get_desc().c_str());
 
                 task->do_affect();
             }
