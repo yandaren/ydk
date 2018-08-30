@@ -95,6 +95,21 @@ namespace utility
             timer_node* first() {
                 return head;
             }
+
+            void    add_to_tail(timer_node* node) {
+                node->link = this;
+                if (!head) {
+                    head = node;
+                    node->prev = node->next = node;
+                }
+                else {
+                    timer_node* tail = head->prev;
+                    node->prev = tail;
+                    tail->next = node;
+                    node->next = head;
+                    head->prev = node;
+                }
+            }
         };
 
         template<int32_t Size>
@@ -304,18 +319,7 @@ namespace utility
             }
 
             // add to tail
-            node->link = link;
-            if (!link->head) {
-                link->head = node;
-                node->prev = node->next = node;
-            }
-            else {
-                timer_node* tail = link->head->prev;
-                node->prev = tail;
-                tail->next = node;
-                node->next = link->head;
-                link->head->prev = node;
-            }
+            link->add_to_tail(node);
         }
 
         static uint64_t gettime64_since_epoch()
