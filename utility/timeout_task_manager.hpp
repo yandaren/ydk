@@ -17,6 +17,7 @@
 #include <mutex>
 #include <atomic>
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 #ifdef _WIN32
