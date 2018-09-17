@@ -11,6 +11,7 @@
 #define __utility_buffer_hpp__
 
 #include <stdint.h>
+#include <string.h>
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
