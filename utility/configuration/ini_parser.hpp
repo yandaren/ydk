@@ -11,6 +11,8 @@
 #define __ydk_utility_configuration_ini_parser_hpp__
 
 #include <unordered_map>
+#include <set>
+#include <map>
 #include <string.h>
 #include <string>
 #include <cstdint>
@@ -25,7 +27,12 @@ template<class Mutex = utility::sync::null_mutex >
 class ini_parser
 {
 protected:
+    /** <app_name.item_key, value > */
     std::unordered_map<std::string, std::string> key_value_map_;
+
+    /** <app_name, item_key> */
+    std::map<std::string, std::set<std::string>> app_name_item_key_set_map_;
+
     Mutex                                        mtx_;
 public:
     /** 
@@ -61,13 +68,13 @@ public:
     /** 
      * @brief get the config value
      */
-    int32_t get_int32(const char* value, int32_t defualt = 0)
+    int32_t get_int32(const char* key, int32_t defualt = 0)
     {
         std::lock_guard<Mutex> locker(mtx_);
 
         int32_t ret_v = defualt;
 
-        std::string* v = get(value);
+        std::string* v = get(key);
         if (v){
             std::istringstream is(*v);
             is >> ret_v;
@@ -76,13 +83,23 @@ public:
         return ret_v;
     }
 
-    int64_t get_int64(const char* value, int64_t dfault = 0)
+    void    set_int32(const char* key, int32_t value) {
+        std::lock_guard<Mutex> locker(mtx_);
+
+        std::string value_str(std::move(std::to_string(value)));
+        std::string* v = get_or_create(key);
+        if (v) {
+            *v = value_str;
+        }
+    }
+
+    int64_t get_int64(const char* key, int64_t dfault = 0)
     {
         std::lock_guard<Mutex> locker(mtx_);
 
         int64_t ret_v = dfault;
 
-        std::string* v = get(value);
+        std::string* v = get(key);
         if (v){
             std::istringstream is(*v);
             is >> ret_v;
@@ -91,13 +108,23 @@ public:
         return ret_v;
     }
 
-    float  get_float(const char* value, float dfault = 0)
+    void    set_int64(const char* key, int64_t value) {
+        std::lock_guard<Mutex> locker(mtx_);
+
+        std::string value_str(std::move(std::to_string(value)));
+        std::string* v = get_or_create(key);
+        if (v) {
+            *v = value_str;
+        }
+    }
+
+    float  get_float(const char* key, float dfault = 0)
     {
         std::lock_guard<Mutex> locker(mtx_);
 
         float ret_v = dfault;
 
-        std::string* v = get(value);
+        std::string* v = get(key);
         if (v){
             std::istringstream is(*v);
             is >> ret_v;
@@ -106,13 +133,23 @@ public:
         return ret_v;
     }
 
-    std::string get_string(const char* value, std::string dfault = "")
+    void    set_float(const char* key, float value) {
+        std::lock_guard<Mutex> locker(mtx_);
+
+        std::string value_str(std::move(std::to_string(value)));
+        std::string* v = get_or_create(key);
+        if (v) {
+            *v = value_str;
+        }
+    }
+
+    std::string get_string(const char* key, std::string dfault = "")
     {
         std::lock_guard<Mutex> locker(mtx_);
 
         std::string ret_v = dfault;
 
-        std::string* v = get(value);
+        std::string* v = get(key);
         if (v){
             ret_v = *v;
         }
@@ -120,14 +157,74 @@ public:
         return std::move(ret_v);
     }
 
+    void    set_string(const char* key, const char* value) {
+        std::lock_guard<Mutex> locker(mtx_);
+
+        std::string* v = get_or_create(key);
+        if (v) {
+            *v = value;
+        }
+    }
+
+    bool    save(const char* file_name) {
+
+        std::lock_guard<Mutex> locker(mtx_);
+
+        FILE* file = fopen(file_name, "w+");
+        if (!file) {
+            return false;
+        }
+
+        for (auto& app_item_key_set_kv : app_name_item_key_set_map_) {
+            const std::string& app_name = app_item_key_set_kv.first;
+            fprintf(file, "[%s]\n", app_name.c_str());
+
+            for (auto& item_name : app_item_key_set_kv.second) {
+                std::string item_real_key = app_name;
+                item_real_key.append(".").append(item_name);
+                const std::string& value = key_value_map_[item_real_key];
+                fprintf(file, "%s = %s\n", item_name.c_str(), value.c_str());
+            }
+
+            fprintf(file, "\n");
+        }
+
+        fflush(file);
+        fclose(file);
+
+        return true;
+    }
+
 protected:
-    std::string* get(const char* value)
+    std::string* get(const char* key)
     {
-        auto iter = key_value_map_.find(value);
+        auto iter = key_value_map_.find(key);
         if (iter != key_value_map_.end()){
             return &iter->second;
         }
         return nullptr;
+    }
+
+    std::string* get_or_create(const char* key) {
+        std::string in_key(key);
+        std::string::size_type pos = in_key.find(".");
+        if (pos == std::string::npos) {
+            return nullptr;
+        }
+
+        std::string app_name = in_key.substr(0, pos);
+        std::string item_name = in_key.substr(pos + 1, in_key.size() - pos - 1);
+        if (item_name.empty()) {
+            return nullptr;
+        }
+
+        if (!app_name_item_key_set_map_[app_name].count(item_name)) {
+            app_name_item_key_set_map_[app_name].insert(item_name);
+        }
+
+        std::string& ret = key_value_map_[in_key];
+
+        return &ret;
     }
 
     bool        parse(FILE* file){
@@ -199,6 +296,8 @@ protected:
                         // save the result
                         std::string key = app_name + std::string(".") + item_name;
                         key_value_map_[key] = item_value;
+
+                        app_name_item_key_set_map_[app_name].insert(item_name);
 
                         break;
                     }
