@@ -106,13 +106,13 @@ public:
     uint32_t node_count(){
         std::lock_guard<std::mutex> locker(map_mtx_);
 
-        return node_map_.size();
+        return (uint32_t)node_map_.size();
     }
 
     uint32_t hash_map_size(){
         std::lock_guard<std::mutex> locker(map_mtx_);
 
-        return hash_map_.size();
+        return (uint32_t)hash_map_.size();
     }
 
     uint32_t node_replicas(){
