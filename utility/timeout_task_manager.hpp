@@ -40,6 +40,9 @@ namespace utility
         timeout_task() : expire_time(0), task_id(0), task_type(0), time_out(0){
         }
 
+        virtual ~timeout_task() {
+        }
+
         /** 
          * @brief time_out in  milliseconds
          */
