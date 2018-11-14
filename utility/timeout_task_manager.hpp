@@ -244,6 +244,17 @@ namespace utility
             return task;
         }
 
+        timeout_task::ptr get_task(uint64_t task_id) {
+            std::lock_guard<std::mutex> locker(mtx_);
+
+            auto iter = time_out_task_map_.find(task_id);
+            if (iter != time_out_task_map_.end()) {
+                return iter->second;
+            }
+
+            return timeout_task::ptr();
+        }
+
     protected:
         void    log_msg(log_lvl lvl, const char* format, ...) {
             if (!internal_logger_) {
