@@ -104,6 +104,13 @@ namespace utility
         std::string desc;           // 描述信息
     };
 
+    // type cast
+    template<class T>
+    std::shared_ptr<T> static_cast_timeout_task_to(utility::timeout_task::ptr task)
+    {
+        return std::static_pointer_cast<T>(task);
+    }
+
     class timeout_task_manager
     {
     public:
