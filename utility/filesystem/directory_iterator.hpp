@@ -16,7 +16,7 @@
 
 #ifdef _WIN32
 #include "impl/directory_iterator_win.hpp"
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__APPLE__)
 #include "impl/directory_iterator_linux.hpp"
 #endif
 

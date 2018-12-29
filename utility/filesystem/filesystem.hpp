@@ -14,10 +14,12 @@
 #ifndef __ydk_utility_filesystem_hpp__
 #define __ydk_utility_filesystem_hpp__
 
+#include <stdio.h>
+
 #ifdef _WIN32
 #include <io.h>
 #include <direct.h> 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__APPLE__)
 #include <unistd.h>
 #include <sys/stat.h>
 #endif
@@ -49,7 +51,7 @@ static bool exist(const char* file_name) {
 static bool create_directory(const char* path) {
 #ifdef _WIN32
 	return _mkdir(path) == 0;
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__APPLE__)
 	return mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
 #else
 #error "create_directory unsupported platform"
@@ -81,6 +83,13 @@ static bool create_directories(const char* path) {
 		}
 	}
 	return true;
+}
+
+/** 
+ * @brief 删除文件
+ */
+static bool remove_file(const char* file_name) {
+    return remove(file_name) == 0;
 }
 
 }
