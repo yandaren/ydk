@@ -19,6 +19,8 @@
 #include <cstdio>
 #include <mutex>
 #include <sstream>
+#include <vector>
+#include <utility/str.hpp>
 #include <utility/sync/null_mutex.hpp>
 
 namespace utility
@@ -166,6 +168,23 @@ public:
         }
     }
 
+    template<typename T>
+    std::vector<T> get_list(const char* key, const char* separator) {
+        std::lock_guard<Mutex> locker(mtx_);
+
+        std::vector<T> ret_arr;
+        std::vector<std::string> v_arr = get_list_inner(key, separator);
+        for (auto& e : v_arr) {
+            auto e1 = utility::str::trim_space(e);
+            T v;
+            std::istringstream is(e1);
+            is >> v;
+            ret_arr.push_back(v);
+        }
+
+        return ret_arr;
+    }
+
     bool    save(const char* file_name) {
 
         std::lock_guard<Mutex> locker(mtx_);
@@ -203,6 +222,16 @@ protected:
             return &iter->second;
         }
         return nullptr;
+    }
+
+    std::vector<std::string> get_list_inner(const char* key, const char* separator) {
+        std::vector<std::string> ret;
+        std::string* v = get(key);
+        if (v) {
+            utility::str::string_splits(v->c_str(), separator, ret);
+        }
+
+        return std::move(ret);
     }
 
     std::string* get_or_create(const char* key) {

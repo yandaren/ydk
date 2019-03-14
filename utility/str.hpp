@@ -111,6 +111,22 @@ namespace str
         return pos == 0;
     }
 
+
+    static std::string trim_space(const std::string& in) {
+        if (in.empty()) {
+            return in;
+        }
+
+        auto start_idx = in.find_first_not_of(' ');
+        auto end_idx = in.find_last_not_of(' ');
+        if (end_idx < start_idx) {
+            return "";
+        }
+
+        auto len = end_idx - start_idx + 1;
+        return in.substr(start_idx, len);
+    }
+
     /**
     * @brief string to hex string
     */
