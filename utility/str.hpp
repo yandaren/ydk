@@ -118,7 +118,15 @@ namespace str
         }
 
         auto start_idx = in.find_first_not_of(' ');
+        if (start_idx == std::string::npos) {
+            return "";
+        }
+
         auto end_idx = in.find_last_not_of(' ');
+        if (end_idx == std::string::npos) {
+            return "";
+        }
+
         if (end_idx < start_idx) {
             return "";
         }
